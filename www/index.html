@@ -10,48 +10,66 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">-->
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <link rel="stylesheet" type="text/css" href="css/index.css">
-		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 		<link rel="stylesheet" type="text/css" href="css/bootstrap-red.css">
-        <title>Log in</title>
+        <title>Startup</title>
     </head>
 	<body>
 
 		<div class="app" data-role="page">
 
-			<div data-role="content" style="margin-top: 50px;"> 
+			<div id="content" data-role="content" style="margin-top: 50px;"> 
 
-				<form id="login-form">
-					<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
-						<label for="huburl"></label>
-						<input type="text" name="huburl" id="huburl" value="" placeholder="your.hub.address" />
-					</div>
-
-					<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
-						<label for="username"></label>
-						<input type="text" name="username" id="username" value="" placeholder="Username" />
-					</div>
-
-					<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
-						<label for="password"></label>
-						<input type="password" name="password" id="password" value="" placeholder="Password" />
-					</div>
-
-					<button type="submit" name="submit" class="btn btn-primary" style="margin-top: 20px; width: 70%;">Login</button>
-				</form>
+				<div id='spinner'></div>
 
 			</div>
 
 		</div>
 
+		<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+		<script type="text/javascript" src="js/spin.min.js"></script>
+		<!-- sha1 -->
+		<script src="js/hmac-sha1.js"></script>
+		<!-- sha256 -->
+		<script src="js/hmac-sha256.js"></script>
+		<script src="js/enc-base64-min.js"></script>
+		<script type="text/javascript" src="js/oauth-1.0a.js"></script>
 		<script type="text/javascript" src="cordova.js"></script>
 		<script type="text/javascript" src="js/index.js"></script>
-		<!--<script type="text/javascript" src="js/main.js"></script>-->
-		<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+		<script>
+			
+			var opts = {
+				lines: 13 // The number of lines to draw
+			  , length: 28 // The length of each line
+			  , width: 14 // The line thickness
+			  , radius: 42 // The radius of the inner circle
+			  , scale: 1 // Scales overall size of the spinner
+			  , corners: 1 // Corner roundness (0..1)
+			  , color: '#000' // #rgb or #rrggbb or array of colors
+			  , opacity: 0.25 // Opacity of the lines
+			  , rotate: 0 // The rotation offset
+			  , direction: 1 // 1: clockwise, -1: counterclockwise
+			  , speed: 1 // Rounds per second
+			  , trail: 60 // Afterglow percentage
+			  , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+			  , zIndex: 2e9 // The z-index (defaults to 2000000000)
+			  , className: 'spinner' // The CSS class to assign to the spinner
+			  , top: '50%' // Top position relative to parent
+			  , left: '50%' // Left position relative to parent
+			  , shadow: false // Whether to render a shadow
+			  , hwaccel: false // Whether to use hardware acceleration
+			  , position: 'absolute' // Element positioning
+			  };
+			  var spinner = new Spinner(opts).spin(document.getElementById('spinner'));
+
+		</script>
 	</body>
 </html>

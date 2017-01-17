@@ -1,0 +1,20 @@
+<div>
+
+	<h1>Home Screen</h1>
+	<div id="access-token"></div>
+	<button id="reset-client" class="btn btn-danger">Reset client</button>
+	<hr>
+	<button id="get-data" class="btn btn-success">Get data!</button>
+	<div id="data"></div>
+</div>
+
+<script>	
+	$('#access-token').html('<p>Access Token: ' + hz.access_token +'</p>');
+	$('#reset-client').click(function() {
+		localStorage.clear();
+		window.location = 'index.html';
+	});
+	$('#get-data').click(function() {
+		hz.get_data('/api/z/1.0/network/stream/');
+	});
+</script>

@@ -1,0 +1,35 @@
+<form id="login-form">
+	<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
+		<label for="huburl"></label>
+		<input type="text" name="huburl" id="huburl" value="" placeholder="your.hub.address" />
+	</div>
+<!--
+	<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
+		<label for="consumer_key"></label>
+		<input type="text" name="consumer_key" id="consumer_key" value="" placeholder="Consumer key" />
+	</div>
+
+	<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
+		<label for="consumer_secret"></label>
+		<input type="consumer_secret" name="consumer_secret" id="consumer_secret" value="" placeholder="Consumer secret" />
+	</div>-->
+
+	<button type="submit" name="submit" class="btn btn-primary" style="margin-top: 20px; width: 70%;">Login</button>
+</form>
+
+<script>
+	
+		$("#login-form").submit(function(event) {
+			/* stop form from submitting normally */
+			event.preventDefault();
+
+			if($("#huburl").val() === '') {
+				alert('Hub URL is required.');
+				return false;
+			}
+			hz.hub_url = $("#huburl").val();
+			localStorage.setItem('hub_url', hz.hub_url);
+			window.location = 'index.html';
+
+		});
+</script>
