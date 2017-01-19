@@ -29,8 +29,8 @@ hz.register_client = function () {
 		type: 'POST',
 		data: {
 			'application_name': 'Hubzilla Android',
-			//'redirect_uris': 'file:///android_asset/www/index.html',
-			'redirect_uris': 'http://localhost:8383/hubzilla-android/index.html',
+			'redirect_uris': 'file:///android_asset/www/index.html',
+			//'redirect_uris': 'http://localhost:8383/hubzilla-android/index.html',
 			'logo_uri': ''
 		}
 	}).done(function(data) {
@@ -93,40 +93,67 @@ hz.authorize_token = function () {
 };
 
 
-hz.get_data = function (api_path) {
-
+hz.access_token = function () {
 
 	$.ajax({
-		url: 'https://' + hz.hub_url + '/' + api_path,
+		url: 'https://' + hz.hub_url + '/api/oauth/access_token',
 		type: 'POST',
 		data: {
 			'oauth_token': hz.oauth_token,
+			'oauth_verifier': hz.oauth_verifier,
+			'oauth_signature_method': 'PLAINTEXT',
 			'oauth_consumer_key': hz.consumer_key,
-			'oauth_signature': hz.access_token,
-			'oauth_nonce': hz.randomString(32)
+			'oauth_signature': hz.consumer_secret+'&'+hz.oauth_token_secret,
+			'oauth_timestamp': hz.timeStamp(),
+			'oauth_nonce': hz.randomString(32),
+			'oauth_version': '1.0'
 		}
 	}).done(function(data) {
 		window.console.log(data);
-		$('#data').html(data);
-	});
-	
-	var oauth = OAuth({
-		consumer: {
-			key: hz.consumer_key,
-			secret: hz.consumer_secret
-		},
-		signature_method: 'HMAC-SHA1',
-		hash_function: function(base_string, key) {
-			return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
+		if(data.split('&').length < 2) {
+			alert('Error retrieving OAuth access token.');
+			return false;
 		}
-	});
-	var token = {
-		key: hz.oauth_token,
-		secret: hz.oauth_token_secret
-	};
-	
-	
+		hz.oauth_token = data.split('&')[0].split('=')[1];
+		hz.oauth_token_secret = data.split('&')[1].split('=')[1];
+		hz.oauth_token_authorized = true;
+		window.console.log('New OAuth access token retrieved: ' + hz.oauth_token + ', ' + hz.oauth_token_secret);					
 
+		localStorage.setItem('oauth_token', hz.oauth_token);
+		localStorage.setItem('oauth_token_secret', hz.oauth_token_secret);
+		localStorage.setItem('oauth_token_authorized', hz.oauth_token_authorized);
+		window.location = 'index.html';
+	});
+};
+
+hz.timeStamp = function () {
+	var time = Math.floor(new Date() / 1000).toString();
+//	window.console.log(time);
+	return time;
+//	.toString();
+//	return Date.now();
+};
+
+hz.get_data = function (api_path) {
+
+	$.ajax({
+		url: 'https://' + hz.hub_url + '/' + api_path,
+		type: 'GET',
+		data: {
+			'oauth_token': hz.oauth_token,
+			'oauth_signature_method': 'PLAINTEXT',
+			'oauth_consumer_key': hz.consumer_key,
+			'oauth_signature': hz.consumer_secret+'&'+hz.oauth_token_secret,
+			'oauth_timestamp': hz.timeStamp(),
+			'oauth_nonce': hz.randomString(32),
+			'oauth_version': '1.0',
+			'channel': hz.channel
+		}
+	}).done(function(data) {
+		window.console.log(data);
+		$('#data').html(JSON.stringify(data));
+	});
+	
 };
 
 hz.randomString = function (length) {
@@ -155,32 +182,39 @@ var app = {
     // Application Constructor
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
-		//$('#content').html(window.location.href);
-		//return;
+
 		// Start the app
 		//localStorage.clear();
+		
+		hz.hub_url = localStorage.getItem('hub_url');
+		hz.channel = localStorage.getItem('channel');
+		hz.consumer_key = localStorage.getItem('consumer_key');
+		hz.consumer_secret = localStorage.getItem('consumer_secret');
+		hz.oauth_token = localStorage.getItem('oauth_token');
+		hz.oauth_token_secret = localStorage.getItem('oauth_token_secret');
+		hz.oauth_verifier = localStorage.getItem('oauth_verifier');
+		hz.oauth_token_authorized = localStorage.getItem('oauth_token_authorized');
+		if(hz.oauth_token_authorized === null) {
+			hz.oauth_token_authorized = false;
+		}
 		
 		var oauth_token = $.urlParam('oauth_token');
 		var oauth_verifier = $.urlParam('oauth_verifier');
 		if(oauth_token && oauth_verifier) {
 			window.console.log('Token authenticated: ' + oauth_verifier);
-			hz.access_token = oauth_verifier;
-			localStorage.setItem('access_token', hz.access_token);
+			hz.oauth_verifier = oauth_verifier;
+			localStorage.setItem('oauth_verifier', hz.oauth_verifier);
+			// Get an OAuth access token
+			hz.access_token();
+			return;
 		}
-		
-		hz.hub_url = localStorage.getItem('hub_url');
-		hz.consumer_key = localStorage.getItem('consumer_key');
-		hz.consumer_secret = localStorage.getItem('consumer_secret');
-		hz.oauth_token = localStorage.getItem('oauth_token');
-		hz.oauth_token_secret = localStorage.getItem('oauth_token_secret');
-		hz.access_token = localStorage.getItem('access_token');
 		if( !( hz.hub_url) ) {
 			$('#content').load('register.html');
 		} else {
 			if( !( hz.consumer_key && hz.consumer_secret ) ) {
 				hz.register_client();
 			} else {
-				if(!hz.access_token) {
+				if(!hz.oauth_token_authorized) {
 					if( !( hz.oauth_token && hz.oauth_token_secret) ) {
 						hz.request_token();
 					} else {

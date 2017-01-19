@@ -1,6 +1,7 @@
 <form id="login-form">
 	<div data-role="fieldcontain" class="ui-hide-label" style="margin-top: 10px;">
 		<label for="huburl"></label>
+		<input type="text" name="channel" id="channel" value="" placeholder="channel name" />
 		<input type="text" name="huburl" id="huburl" value="" placeholder="your.hub.address" />
 	</div>
 <!--
@@ -23,12 +24,18 @@
 			/* stop form from submitting normally */
 			event.preventDefault();
 
-			if($("#huburl").val() === '') {
+			if($("#huburl").val() === '' ) {
 				alert('Hub URL is required.');
 				return false;
 			}
+			if($("#channel").val() === '' ) {
+				alert('Channel name is required.');
+				return false;
+			}
 			hz.hub_url = $("#huburl").val();
+			hz.channel = $("#channel").val();
 			localStorage.setItem('hub_url', hz.hub_url);
+			localStorage.setItem('channel', hz.channel);
 			window.location = 'index.html';
 
 		});
